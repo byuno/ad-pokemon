@@ -1,4 +1,4 @@
-import { test, expect, request, APIRequestContext } from '@playwright/test';
+import { test, expect, request, APIRequestContext , chromium} from '@playwright/test';
 
 // test.beforeEach( async({ page }) => {
 //     // await page.route('*/**/', async route => {
@@ -40,7 +40,6 @@ test.only('APIRequestContext attempt', async () => {
     const randomThree = randomGenerator();
  
     const pokeAPIRequestContext = await request.newContext();
-   
     let pokeObj = {};
     
     //Set the keys and fill the corresponding array with ability to have the key-value pair for the object
@@ -48,14 +47,27 @@ test.only('APIRequestContext attempt', async () => {
         const pokeResponse = await pokeAPIRequestContext.get(randomThree[i].url);
         const pokeResponseBody = await pokeResponse.json();
         
+        //fill array with pokemon abilities
         let pokeAbilityArray : any[] = [];
         for(let j = 0; j < pokeResponseBody.abilities.length; j++){
             pokeAbilityArray.push(pokeResponseBody.abilities[j].ability.name);
         }
 
+        //fill the object with pokemon ability key-value pairs
         pokeObj[randomThree[i].name] = pokeAbilityArray;
     }
 
+    //output
     console.log(pokeObj)
+
+    //*** Bonus material ***
+    // Launch the browser
+    const browser = await chromium.launch();
+
+    // Create a new page
+    const page = await browser.newPage();
+
+    // Use setContent to set the HTML content of the page
+    await page.setContent(`<!DOCTYPE html><html><body><h1>${JSON.stringify(pokeObj)}</h1></body></html>`);
 
 })
