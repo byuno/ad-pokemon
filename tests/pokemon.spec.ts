@@ -22,7 +22,7 @@ test.only('APIRequestContext attempt', async () => {
     const response = await APIRequestContext.get('https://pokeapi.co/api/v2/pokemon');
     const responseBody = await response.json();
 
-    //pick 3 random pokemon
+    //function to pick 3 random pokemon
     const randomGenerator = () => {
 
         const maxNumber = responseBody.results.length-1;
@@ -36,13 +36,14 @@ test.only('APIRequestContext attempt', async () => {
         }
         return tempArray;
     }
-    //pick 3 random pokemon
+    //pick the 3 random pokemon
     const randomThree = randomGenerator();
  
     const pokeAPIRequestContext = await request.newContext();
    
     let pokeObj = {};
     
+    //Set the keys and fill the corresponding array with ability to have the key-value pair for the object
     for(let i = 0; i < randomThree.length; i++){
         const pokeResponse = await pokeAPIRequestContext.get(randomThree[i].url);
         const pokeResponseBody = await pokeResponse.json();
