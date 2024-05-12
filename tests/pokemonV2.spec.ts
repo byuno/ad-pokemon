@@ -1,15 +1,20 @@
 import { test, expect, request, APIRequestContext , chromium} from '@playwright/test';
 
-test('Pokemon API - Select 3 random pokemon and display their abilities', async () => {
-    
-    const APIRequestContext = await request.newContext();
-    const response = await APIRequestContext.get('https://pokeapi.co/api/v2/pokemon');
-    const responseBody = await response.json();
+test('Pokemon API - Select 3 random pokemon and display their abilities', async ({page, request}) => {
 
-    //function to pick 3 random pokemon
+    const response = await request.get('https://pokeapi.co/api/v2/pokemon');
+    expect(response.ok()).toBeTruthy();
+    
+    const responseBody = await response.json();
+    //alternative
+    //expect(responseBody.count).toBe(1302)
+    expect(responseBody.results[0].name).toBe('bulbasaur')
+    expect(responseBody.results[0].url).toBe('https://pokeapi.co/api/v2/pokemon/1/')
+
     const randomGenerator = () => {
 
         const maxNumber = responseBody.results.length-1;
+        console.log(responseBody.results.length)
         const minNumber = 0
         let tempArray : any[] = [];
         const randomNumberCount = 3
@@ -22,36 +27,24 @@ test('Pokemon API - Select 3 random pokemon and display their abilities', async 
     }
     //pick the 3 random pokemon
     const randomThree = randomGenerator();
- 
-    const pokeAPIRequestContext = await request.newContext();
+    expect(randomThree.length).toBe(3)
+
     let pokeObj = {};
-    
-    //Set the keys and fill the corresponding array with ability to have the key-value pair for the object
     for(let i = 0; i < randomThree.length; i++){
-        const pokeResponse = await pokeAPIRequestContext.get(randomThree[i].url);
+        const pokeResponse = await request.get(randomThree[i].url);
         const pokeResponseBody = await pokeResponse.json();
         
         //fill array with pokemon abilities
-        let pokeAbilityArray : any[] = [];
+        let pokeAbilityArray : string[] = [];
         for(let j = 0; j < pokeResponseBody.abilities.length; j++){
             pokeAbilityArray.push(pokeResponseBody.abilities[j].ability.name);
         }
 
         //fill the object with pokemon ability key-value pairs
+        console.log(i)
         pokeObj[randomThree[i].name] = pokeAbilityArray;
     }
 
-    //output
+    //expect(pokeObj.size).toBe(3)
     console.log(pokeObj)
-
-    //*** Bonus material ***
-    // Launch the browser
-    const browser = await chromium.launch();
-
-    // Create a new page
-    const page = await browser.newPage();
-
-    // Use setContent to set the HTML content of the page
-    await page.setContent(`<!DOCTYPE html><html><body><h1>${JSON.stringify(pokeObj)}</h1></body></html>`);
-
 })
