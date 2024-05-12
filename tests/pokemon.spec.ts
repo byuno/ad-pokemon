@@ -1,6 +1,6 @@
 import { test, expect, request, APIRequestContext , chromium} from '@playwright/test';
 
-test('APIRequestContext attempt', async () => {
+test('Pokemon API - Select 3 random pokemon and display their abilities', async () => {
     const APIRequestContext = await request.newContext();
     const response = await APIRequestContext.get('https://pokeapi.co/api/v2/pokemon');
     const responseBody = await response.json();
