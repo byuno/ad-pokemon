@@ -6,34 +6,41 @@ test('Pokemon API - Select 3 random pokemon and display their abilities', async 
     expect(response.ok()).toBeTruthy();
     
     const responseBody = await response.json();
-    //alternative
+    //would the below better? One line, no hardcoding in object
     //expect(responseBody.count).toBe(1302)
     expect(responseBody.results[0].name).toBe('bulbasaur')
     expect(responseBody.results[0].url).toBe('https://pokeapi.co/api/v2/pokemon/1/')
 
-    const randomGenerator = () => {
-
+    //Fill an array with Pokemon, then randomize the order
+    function randomize() {
+        let randPoke: any[] = [];
         const maxNumber = responseBody.results.length-1;
-        console.log(responseBody.results.length)
-        const minNumber = 0
-        let tempArray : any[] = [];
-        const randomNumberCount = 3
-        for(let i = 0; i < randomNumberCount; i++){
-            let randomNum = Math.floor(Math.random() * ( maxNumber - minNumber ) + minNumber);
-
-            tempArray.push(responseBody.results[randomNum]);
+        for (let i = 0; i < maxNumber; i++) {
+            randPoke.push(responseBody.results[i]);
         }
-        return tempArray;
-    }
-    //pick the 3 random pokemon
-    const randomThree = randomGenerator();
-    expect(randomThree.length).toBe(3)
 
+        //Shuffle the array
+        for (let i = randPoke.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [randPoke[i], randPoke[j]] = [randPoke[j], randPoke[i]];
+        }
+
+        return randPoke;
+    }
+    
+    //Create a randomized set of pokemon
+    const randomPokemon = randomize();
+    
     let pokeObj = {};
-    for(let i = 0; i < randomThree.length; i++){
-        const pokeResponse = await request.get(randomThree[i].url);
+    let pokeCounter = 3;
+
+    //Use the first 3 randomized pokemon
+    for(let i = 0; i < pokeCounter; i++){
+        const pokeResponse = await request.get(randomPokemon[i].url);
+        expect(pokeResponse.ok()).toBeTruthy();
+
         const pokeResponseBody = await pokeResponse.json();
-        
+
         //fill array with pokemon abilities
         let pokeAbilityArray : string[] = [];
         for(let j = 0; j < pokeResponseBody.abilities.length; j++){
@@ -41,10 +48,12 @@ test('Pokemon API - Select 3 random pokemon and display their abilities', async 
         }
 
         //fill the object with pokemon ability key-value pairs
-        console.log(i)
-        pokeObj[randomThree[i].name] = pokeAbilityArray;
+        pokeObj[randomPokemon[i].name] = pokeAbilityArray;
     }
-
-    //expect(pokeObj.size).toBe(3)
+    
+    //print out results
     console.log(pokeObj)
+
+    // Use setContent to set the HTML content of the page
+    await page.setContent(`<!DOCTYPE html><html><body><h1>${JSON.stringify(pokeObj)}</h1></body></html>`);
 })
