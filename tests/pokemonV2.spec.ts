@@ -50,7 +50,6 @@ test('Pokemon API - Select 3 random pokemon and display their abilities', async 
         //fill the object with pokemon ability key-value pairs
         pokeObj[randomPokemon[i].name] = pokeAbilityArray;
     }
-    
     //print out results
     console.log(pokeObj)
 
